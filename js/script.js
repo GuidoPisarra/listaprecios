@@ -4,24 +4,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     startButton.addEventListener('click', async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-            video.srcObject = stream;
-            const barcodeDetector = new BarcodeDetector({ formats: ['qr_code', 'ean_13'] });
-
-            const checkForCodes = async () => {
-                try {
-                    const codes = await barcodeDetector.detect(video);
-                    if (codes && codes.length > 0) {
-                        // Maneja los códigos encontrados aquí
-                        console.log('Códigos encontrados:', codes);
-                    }
-                } catch (error) {
-                    console.error('Error al detectar códigos:', error);
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#video')    // Or '#yourElement' (optional)
+                },
+                decoder: {
+                    readers: ["code_128_reader"]
                 }
-                requestAnimationFrame(checkForCodes);
-            };
+            }, function (err) {
+                if (err) {
+                    console.log(err);
+                    return
+                }
+                console.log("Initialization finished. Ready to start");
+                Quagga.start();
+            });
 
-            checkForCodes();
         } catch (error) {
             console.error('Error al acceder a la cámara:', error);
         }
